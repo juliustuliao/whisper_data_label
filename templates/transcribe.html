@@ -1,0 +1,86 @@
+<!doctype html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Manual Transcription</title>
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/5.15.3/css/all.min.css">
+    <style>
+        body {
+            font-family: Arial, sans-serif;
+            background-color: #f4f4f4;
+            margin: 0;
+            padding: 20px;
+        }
+        h2 {
+            color: #333;
+        }
+        .segment {
+            background-color: #fff;
+            margin-bottom: 20px;
+            padding: 20px;
+            border-radius: 8px;
+            box-shadow: 0 2px 4px rgba(0,0,0,0.1);
+        }
+        audio {
+            width: 100%;
+            margin-bottom: 15px;
+        }
+        textarea {
+            width: 100%;
+            height: 100px;
+            margin-bottom: 10px;
+            padding: 10px;
+            font-size: 16px;
+            border-radius: 5px;
+            border: 1px solid #ddd;
+            resize: none;
+        }
+        input[type="submit"] {
+            background-color: #0056b3;
+            color: white;
+            padding: 10px 20px;
+            border: none;
+            border-radius: 5px;
+            cursor: pointer;
+            font-size: 16px;
+        }
+        input[type="submit"]:hover {
+            background-color: #004494;
+        }
+    </style>
+    <script src="https://ajax.googleapis.com/ajax/libs/jquery/3.5.1/jquery.min.js"></script>
+    <script>
+    function submitForm(form) {
+        $.ajax({
+            url: "{{ url_for('save_transcription') }}",
+            type: 'post',
+            data: $(form).serialize(),
+            success: function(response) {
+                $(form).parent().fadeOut(300, function() { $(this).remove(); });
+                alert("Transcription saved successfully!");
+            }
+        });
+        return false; // Prevent page refresh
+    }
+    </script>
+</head>
+<body>
+    <h2>Transcribe Segments</h2>
+    <div id="segments-container">
+        {% for segment in segments %}
+            <div class="segment">
+                <audio controls>
+                    <source src="{{ url_for('segment', filename=segment.filename) }}" type="audio/wav">
+                    Your browser does not support the audio element.
+                </audio>
+                <form onsubmit="return submitForm(this);">
+                    <textarea name="transcription" placeholder="Transcribe here...">{{ segment.transcription }}</textarea>
+                    <input type="hidden" name="filename" value="{{ segment.filename }}">
+                    <input type="submit" value="Submit Transcription">
+                </form>
+            </div>
+        {% endfor %}
+    </div>
+</body>
+</html>
